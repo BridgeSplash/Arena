@@ -1,20 +1,12 @@
 {
   "server": {
-    "host": "0.0.0.0",
-    "port": 25565,
-    "motd": ["Line1", "Line2"]
-  },
-  "proxy": {
-    "enabled": false,
-    "secret": "forwarding-secret"
+    "motd": [
+      "MOTD line one",
+      "line two"
+    ],
+      "lobbyInstanceUUID": "60fd730b-779c-4498-bcfd-7b17087ad2bd"
   },
   "permissions": {
-    "operators": [
-      "Your username here"
-    ]
-  },
-  "prometheus": {
-    "enabled": false,
-    "port": 9090
+    "operators": []
   }
 }

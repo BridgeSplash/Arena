@@ -10,10 +10,10 @@
 * Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
 
 #### **Do you intend to add a new feature or change an existing one?**
-* Before you start developing / open a pull request, discuss it in the [Discord server](https://discord.gg/Hbuf4msMVF) and collect positive feedback about the changes from other contributors.
+* Before you start developing / open a pull request, discuss it in the [Discord server](https://discord.gg/yr7HhHtCdX) and collect positive feedback about the changes from other contributors.
 
 #### **Do you have questions about the source code?**
-* Ask any question about Arena in the [Discord server](https://discord.gg/Hbuf4msMVF) and then preferably in the #community-server channel.
+* Ask any question about Arena in the [Discord server](https://discord.gg/yr7HhHtCdX) and then preferably in the #community-server channel.
 
 ## General Contribution Rules
 * By contributing to the Arena project your code/contribution will be released into the public domain as per the [license](../LICENSE).
