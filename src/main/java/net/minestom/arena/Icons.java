@@ -6,9 +6,9 @@ public final class Icons {
     public static final String SHIELD = "\uD83D\uDEE1";
     public static final String POTION = "\uD83E\uDDEA";
     public static final String AXE = "\uD83E\uDE93";
-    public static final String STAR = "\u2606";
-    public static final String CHECKMARK = "\u2714";
-    public static final String CROSS = "\u274C";
+    public static final String STAR = "☆";
+    public static final String CHECKMARK = "✔";
+    public static final String CROSS = "❌";
 
     private Icons() {}
 }

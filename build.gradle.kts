@@ -5,26 +5,24 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
-tasks {
-    jar {
-        archiveFileName.set("server.jar")
-    }
-}
-
 group = "net.minestom"
-version = "1.0-SNAPSHOT"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
     maven(url = "https://jitpack.io")
+    flatDir {
+        dirs("$rootDir/libs")
+    }
 }
 
 dependencies {
-    implementation("com.github.Minestom:Minestom:eb06ba8664")
+    compileOnly("com.github.Minestom:Minestom:8eb089bf3e")
+    compileOnly("mysql:mysql-connector-java:8.0.30")
+    compileOnly("de.simonsator.partyandfriends:PAF-API:1.5.4")
+    compileOnly("de.simonsator.partyandfriends:PAF-Party-API:1.0.4")
+
     implementation("de.articdive:jnoise-pipeline:4.0.0")
-    implementation("io.prometheus:simpleclient:0.16.0")
-    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
-    implementation("io.prometheus:simpleclient_httpserver:0.16.0")
     implementation("net.kyori:adventure-text-minimessage:4.12.0")
 }
 
@@ -34,14 +32,8 @@ tasks.withType<JavaCompile> {
 
 tasks {
     named<ShadowJar>("shadowJar") {
-        manifest {
-            attributes (
-                "Main-Class" to "net.minestom.arena.Main",
-                "Multi-Release" to true
-            )
-        }
-        archiveBaseName.set("arena")
-        mergeServiceFiles()
+        archiveBaseName.set(project.name)
+        archiveClassifier.set("")
     }
 
     build { dependsOn(shadowJar) }

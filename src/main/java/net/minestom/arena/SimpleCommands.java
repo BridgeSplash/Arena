@@ -1,12 +1,9 @@
 package net.minestom.arena;
 
 import net.minestom.arena.config.ConfigHandler;
-import net.minestom.arena.game.ArenaManager;
-import net.minestom.arena.group.GroupManager;
 import net.minestom.arena.lobby.Lobby;
 import net.minestom.arena.utils.CommandUtils;
 import net.minestom.server.command.CommandManager;
-import net.minestom.server.command.ConsoleSender;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
@@ -24,11 +21,6 @@ final class SimpleCommands {
     }
 
     private static List<Command> commands() {
-        final Command stop = new Command("stop");
-        stop.setCondition((sender, commandString) -> sender instanceof ConsoleSender ||
-                (sender instanceof Player player && player.getPermissionLevel() == 4));
-        stop.setDefaultExecutor((sender, context) -> ArenaManager.stopServer());
-
         final Command ping = new Command("ping", "latency");
         ping.setDefaultExecutor((sender, context) -> {
             final Player player = (Player) sender;
@@ -41,13 +33,12 @@ final class SimpleCommands {
             final Player player = (Player) sender;
             player.setInstance(Lobby.INSTANCE);
             player.setHealth(player.getMaxHealth());
-            GroupManager.removePlayer(player);
         });
 
-        final Command reload = new Command("reload");
+        final Command reload = new Command("reloadArena");
         reload.setCondition(CommandUtils::consoleOnly);
         reload.setDefaultExecutor(((sender, context) -> ConfigHandler.loadConfig()));
 
-        return List.of(stop, ping, leave, reload);
+        return List.of(ping, leave, reload);
     }
 }

@@ -1,0 +1,6 @@
+{
+  "entrypoint": "net.minestom.arena.Main",
+  "name": "Arena",
+  "version": "@version@",
+  "dependencies": ["FriendsAPIForPAF","PartiesAPIForPAF"]
+}

@@ -5,8 +5,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.arena.game.ArenaCommand;
 import net.minestom.arena.game.mob.MobTestCommand;
-import net.minestom.arena.group.GroupCommand;
-import net.minestom.arena.group.GroupEvent;
+import net.minestom.arena.group.manager.GroupManagerAbstract;
+import net.minestom.arena.group.manager.PartyGroupManager;
 import net.minestom.arena.lobby.Lobby;
 import net.minestom.arena.utils.ResourceUtils;
 import net.minestom.server.MinecraftServer;
@@ -21,39 +21,33 @@ import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.extras.MojangAuth;
-import net.minestom.server.extras.lan.OpenToLAN;
-import net.minestom.server.extras.velocity.VelocityProxy;
+import net.minestom.server.extensions.Extension;
 import net.minestom.server.monitoring.TickMonitor;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static net.minestom.arena.config.ConfigHandler.CONFIG;
 
-final class Main {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+final class Main extends Extension {
 
-    public static void main(String[] args) {
-        MinecraftServer minecraftServer = MinecraftServer.init();
-        if (CONFIG.prometheus().enabled()) Metrics.init();
-
+    @Override
+    public void initialize() {
         try {
             ResourceUtils.extractResource("lobby");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+        GroupManagerAbstract.instance = new PartyGroupManager();
+
         // Commands
         {
             CommandManager manager = MinecraftServer.getCommandManager();
             manager.setUnknownCommandCallback((sender, c) -> Messenger.warn(sender, "Command not found."));
-            manager.register(new GroupCommand());
             manager.register(new ArenaCommand());
             manager.register(new MobTestCommand());
             SimpleCommands.register(manager);
@@ -63,10 +57,9 @@ final class Main {
         {
             GlobalEventHandler handler = MinecraftServer.getGlobalEventHandler();
 
-            // Group events
-            GroupEvent.hook(handler);
             // Server list
             ServerList.hook(handler);
+            PartyGroupManager.register(handler);
 
             // Login
             handler.addListener(PlayerLoginEvent.class, event -> {
@@ -87,7 +80,7 @@ final class Main {
             handler.addListener(PlayerSpawnEvent.class, event -> {
                 if (!event.isFirstSpawn()) return;
                 final Player player = event.getPlayer();
-                Messenger.info(player, "Welcome to Minestom Arena, use /arena to play!");
+                Messenger.info(player, "Welcome to BridgeSplash Arena, use /arena to play!");
                 player.setGameMode(GameMode.ADVENTURE);
                 player.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f));
                 player.setEnableRespawnScreen(false);
@@ -110,13 +103,10 @@ final class Main {
             AtomicReference<TickMonitor> lastTick = new AtomicReference<>();
             handler.addListener(ServerTickMonitorEvent.class, event -> {
                 final TickMonitor monitor = event.getTickMonitor();
-                Metrics.TICK_TIME.observe(monitor.getTickTime());
-                Metrics.ACQUISITION_TIME.observe(monitor.getAcquisitionTime());
                 lastTick.set(monitor);
             });
             MinecraftServer.getExceptionManager().setExceptionHandler(e -> {
-                LOGGER.error("Global exception handler", e);
-                Metrics.EXCEPTIONS.labels(e.getClass().getSimpleName()).inc();
+                getLogger().error("Global exception handler", e);
             });
 
             // Header/footer
@@ -129,29 +119,29 @@ final class Main {
                 final long ramUsage = (runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024;
 
                 final Component header = Component.newline()
-                        .append(Component.text("Minestom Arena", Messenger.PINK_COLOR))
+                        .append(Component.text("BridgeSplash Arena", Messenger.PINK_COLOR))
                         .append(Component.newline()).append(Component.text("Players: " + players.size()))
                         .append(Component.newline()).append(Component.newline())
                         .append(Component.text("RAM USAGE: " + ramUsage + " MB", NamedTextColor.GRAY).append(Component.newline())
                                 .append(Component.text("TICK TIME: " + MathUtils.round(tickMonitor.getTickTime(), 2) + "ms", NamedTextColor.GRAY))).append(Component.newline());
                 final Component footer = Component.newline().append(Component.text("Project: minestom.net").append(Component.newline())
-                                .append(Component.text("    Source: github.com/Minestom/Minestom    ", Messenger.ORANGE_COLOR)).append(Component.newline())
-                                .append(Component.text("Arena: github.com/Minestom/Arena", Messenger.ORANGE_COLOR)))
+                                .append(Component.text("    Source: github.com/Minestom/Minestom    ", Messenger.ORANGE_COLOR))
+                                .append(Component.newline())
+                                .append(Component.text("Arena: github.com/Minestom/Arena", Messenger.ORANGE_COLOR))
+                                .append(Component.newline())
+                                .append(Component.text("Forked From: github.com/Minestom/Arena", Messenger.ORANGE_COLOR)))
                         .append(Component.newline());
 
                 Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
 
             }, TaskSchedule.tick(10), TaskSchedule.tick(10));
-        }
 
-        if (CONFIG.proxy().enabled()) {
-            VelocityProxy.enable(CONFIG.proxy().secret());
-        } else {
-            OpenToLAN.open();
-            if (CONFIG.server().mojangAuth()) MojangAuth.init();
+            getLogger().info("Server startup done! Using configuration " + CONFIG);
         }
+    }
 
-        minecraftServer.start(CONFIG.server().address());
-        System.out.println("Server startup done! Using configuration " + CONFIG);
+    @Override
+    public void terminate() {
+        getLogger().info("Terminating...");
     }
 }

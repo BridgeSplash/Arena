@@ -92,7 +92,7 @@ public final class MobTestCommand extends Command {
         for (Arena arena : ArenaManager.list()) {
             if (!(arena instanceof MobArena mobArena)) continue;
 
-            if (arena.group().members().contains(player))
+            if (arena.group().members().contains(player.getUuid()))
                 return Optional.of(mobArena);
         }
 

@@ -1,7 +1,7 @@
 package net.minestom.arena.game;
 
-import net.minestom.arena.lobby.LobbySidebarDisplay;
 import net.minestom.arena.feature.Feature;
+import net.minestom.arena.lobby.LobbySidebarDisplay;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -10,6 +10,7 @@ import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public interface SingleInstanceArena extends Arena {
@@ -45,6 +46,8 @@ public interface SingleInstanceArena extends Arena {
 
         CompletableFuture<?>[] futures =
                 group().members().stream()
+                        .map(uuid -> MinecraftServer.getConnectionManager().getPlayer(uuid))
+                        .filter(Objects::nonNull)
                         .map(player -> player.setInstance(instance, spawnPosition(player)))
                         .toArray(CompletableFuture<?>[]::new);
 

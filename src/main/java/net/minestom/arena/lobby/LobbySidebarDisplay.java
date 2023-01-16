@@ -16,7 +16,7 @@ public final class LobbySidebarDisplay extends GroupSidebarDisplay {
 
     @Override
     protected Sidebar.ScoreboardLine createPlayerLine(Player player, Group group) {
-        if (player.equals(group.leader())) {
+        if (player.getUuid().equals(group.leader())) {
             return new Sidebar.ScoreboardLine(
                     player.getUuid().toString(),
                     Component.text(Icons.STAR + " ").color(NamedTextColor.WHITE).append(player.getName().color(Messenger.ORANGE_COLOR)),

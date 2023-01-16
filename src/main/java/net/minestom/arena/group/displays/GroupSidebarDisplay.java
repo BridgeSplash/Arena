@@ -2,15 +2,12 @@ package net.minestom.arena.group.displays;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minestom.arena.Messenger;
 import net.minestom.arena.group.Group;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.scoreboard.Sidebar;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class GroupSidebarDisplay implements GroupDisplay {
     private static final int MAX_SCOREBOARD_LINES = 15;
@@ -25,7 +22,7 @@ public abstract class GroupSidebarDisplay implements GroupDisplay {
     private List<Sidebar.ScoreboardLine> createLines() {
         List<Sidebar.ScoreboardLine> lines = new ArrayList<>();
 
-        List<Player> groupMembers = group.members();
+        List<Player> groupMembers = group.members().stream().map(uuid -> MinecraftServer.getConnectionManager().getPlayer(uuid)).filter(Objects::nonNull).toList();
         // separate check is required to prevent "1 more..." from occurring when the player could just be displayed.
         if (groupMembers.size() <= MAX_SCOREBOARD_LINES) {
             for (Player player : groupMembers) {
@@ -55,24 +52,16 @@ public abstract class GroupSidebarDisplay implements GroupDisplay {
 
     @Override
     public final void update() {
-        Set<Sidebar.ScoreboardLine> lines = sidebar.getLines();
-        for (Sidebar.ScoreboardLine line : lines) {
-            sidebar.removeLine(line.getId());
-        }
+        sidebar.getLines().forEach(line -> sidebar.removeLine(line.getId()));
 
-        Set<Player> toUpdate = new HashSet<>(group.members());
-        toUpdate.retainAll(sidebar.getPlayers());
-
-        Set<Player> toRemove = new HashSet<>(sidebar.getPlayers());
-        toRemove.removeAll(toUpdate);
-        for (Player player : toRemove) {
+        for (Player player : sidebar.getViewers()) {
             sidebar.removeViewer(player);
         }
 
         for (Sidebar.ScoreboardLine line : createLines())
             sidebar.createLine(line);
 
-        Set<Player> toAdd = new HashSet<>(group.members());
+        Set<Player> toAdd = new HashSet<>(group.members().stream().map(uuid -> MinecraftServer.getConnectionManager().getPlayer(uuid)).filter(Objects::nonNull).toList());
         toAdd.removeAll(sidebar.getPlayers());
         for (Player player : toAdd) {
             sidebar.addViewer(player);

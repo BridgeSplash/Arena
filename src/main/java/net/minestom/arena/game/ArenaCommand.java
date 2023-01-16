@@ -8,6 +8,7 @@ import net.minestom.arena.Messenger;
 import net.minestom.arena.group.Group;
 import net.minestom.arena.utils.CommandUtils;
 import net.minestom.arena.utils.ItemUtils;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentEnum;
 import net.minestom.server.command.builder.arguments.ArgumentType;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public final class ArenaCommand extends Command {
@@ -46,14 +48,15 @@ public final class ArenaCommand extends Command {
             return;
         }
         final Group group = Group.findGroup(player);
-        if (group.leader() != player) {
+        if (!group.leader().equals(player.getUuid())) {
             Messenger.warn(player, "You are not the leader of your group!");
             return;
         }
 
         Arena arena = type.createInstance(group, options);
         ArenaManager.register(arena);
-        arena.init().thenRun(() -> group.members().forEach(Player::refreshCommands));
+        arena.init().thenRun(() -> group.members().stream().map(p -> MinecraftServer.getConnectionManager().getPlayer(p))
+                .filter(Objects::nonNull).forEach(Player::refreshCommands));
     }
 
     private static final class ArenaInventory extends Inventory {

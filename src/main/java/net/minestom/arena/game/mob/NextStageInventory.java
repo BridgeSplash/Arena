@@ -18,7 +18,7 @@ import net.minestom.server.sound.SoundEvent;
 final class NextStageInventory extends Inventory {
     private static final ItemStack HEADER = ItemUtils.stripItalics(ItemStack.builder(Material.PAPER)
             .displayName(Component.text("Next Stage", NamedTextColor.GOLD))
-            .lore(Component.text("Buy a different class, team upgrades or just continue to the next stage", NamedTextColor.GRAY))
+            .lore(Component.text("Buy a different class, team upgrades", NamedTextColor.GRAY), Component.text("or just continue to the next stage", NamedTextColor.GRAY))
             .build());
     private static final ItemStack CLASS_SELECTION = ItemUtils.stripItalics(ItemStack.builder(Material.SHIELD)
             .displayName(Component.text("Class Selection", NamedTextColor.GREEN))

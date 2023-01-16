@@ -1,11 +1,9 @@
 package net.minestom.arena.game.mob;
 
-import de.articdive.jnoise.core.api.pipeline.NoiseSource;
 import de.articdive.jnoise.generators.noisegen.opensimplex.FastSimplexNoiseGenerator;
 import de.articdive.jnoise.generators.noisegen.perlin.PerlinNoiseGenerator;
 import de.articdive.jnoise.modules.octavation.OctavationModule;
 import de.articdive.jnoise.pipeline.JNoise;
-import net.minestom.arena.Metrics;
 import net.minestom.arena.utils.FullbrightDimension;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -23,7 +21,7 @@ final class MobArenaInstance extends InstanceContainer {
             .build();
 
     MobArenaInstance() {
-        super(UUID.randomUUID(), FullbrightDimension.INSTANCE);
+        super(UUID.randomUUID(), FullbrightDimension.INSTANCE_ARENA);
         getWorldBorder().setDiameter(100);
         setGenerator(unit -> {
             final Point start = unit.absoluteStart();
@@ -69,8 +67,5 @@ final class MobArenaInstance extends InstanceContainer {
     @Override
     protected void setRegistered(boolean registered) {
         super.setRegistered(registered);
-        if (!registered) {
-            Metrics.ENTITIES.dec(getEntities().size());
-        }
     }
 }

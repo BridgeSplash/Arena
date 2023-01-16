@@ -29,7 +29,7 @@ final class Map {
 
         try {
             final LargeGraphics2DFramebuffer framebuffer = new LargeGraphics2DFramebuffer(5 * 128, 3 * 128);
-            final InputStream imageStream = Lobby.class.getResourceAsStream("/minestom.png");
+            final InputStream imageStream = Lobby.class.getResourceAsStream("/banner.png");
             assert imageStream != null;
             BufferedImage image = ImageIO.read(imageStream);
             framebuffer.getRenderer().drawRenderedImage(image, AffineTransform.getScaleInstance(1.0, 1.0));

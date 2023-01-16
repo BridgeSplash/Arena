@@ -46,6 +46,7 @@ final class ServerList {
         final List<String> motd = ConfigHandler.CONFIG.server().motd();
         return motd.stream()
             .map(miniMessage::deserialize)
-            .reduce(Component.empty(), (a, b) -> a.append(b).appendNewline());
+            .reduce(Component.empty(), (a, b) -> a.append(b)
+                    .append(Component.newline()));
     }
 }
